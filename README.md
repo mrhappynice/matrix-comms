@@ -116,3 +116,5 @@ Smoke test (must be **200 OK**):
 ```bash
 curl -I http://127.0.0.1:8008/_matrix/client/versions
 ```
+
+Add user with the adduser.sh script, put in your correct container name.
