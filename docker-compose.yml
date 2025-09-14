@@ -1,0 +1,46 @@
+services:
+  db:
+    image: postgres:16
+    environment:
+      POSTGRES_USER: synapse
+      POSTGRES_PASSWORD: change_me
+      POSTGRES_DB: synapse
+    volumes:
+      - db-data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U synapse"]
+      interval: 10s
+      timeout: 5s
+      retries: 10
+    restart: unless-stopped
+
+  synapse:
+    image: ghcr.io/element-hq/synapse:v1.135.2
+    depends_on:
+      db:
+        condition: service_healthy
+    environment:
+      SYNAPSE_SERVER_NAME: matrix.phrono.tech   # or phrono.tech if you'll do .well-known
+      SYNAPSE_REPORT_STATS: "yes"
+      SYNAPSE_CONFIG_PATH: /data/homeserver.yaml
+    volumes:
+      - synapse-data:/data
+    # EXPOSE PLAIN HTTP ONLY to localhost for nginx
+    ports:
+      - "127.0.0.1:8008:8008"
+    restart: unless-stopped
+
+  element:
+    image: vectorim/element-web:v1.11.111
+    depends_on:
+      - synapse
+    volumes:
+      - ./element/config.json:/app/config.json:ro
+    # serve Element via your existing nginx on a local port
+    ports:
+      - "127.0.0.1:8081:80"
+    restart: unless-stopped
+
+volumes:
+  db-data:
+  synapse-data:
