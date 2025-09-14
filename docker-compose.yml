@@ -20,7 +20,7 @@ services:
       db:
         condition: service_healthy
     environment:
-      SYNAPSE_SERVER_NAME: matrix.phrono.tech   # or phrono.tech if you'll do .well-known
+      SYNAPSE_SERVER_NAME: example.com 
       SYNAPSE_REPORT_STATS: "yes"
       SYNAPSE_CONFIG_PATH: /data/homeserver.yaml
     volumes:
