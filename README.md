@@ -1,8 +1,10 @@
 # Matrix server + basics
 
+- Run the compose file for matrix setup, run turn-run.sh for 1-on-1 calls and video chat, then add the code below to homeserver.yaml in Synapse container
+
 docker-compose.yml (Synapse + Postgres + Element)
 
-Create a folder and save:
+Create a folder and save, change all the instances of "example.com" add your domain:
 
 ```yaml
 services:
@@ -81,7 +83,7 @@ docker run --rm -it \
   ghcr.io/element-hq/synapse:v1.135.2 generate
 ```
 
-Edit `/data/homeserver.yaml` inside that volume to point at Postgres and **HTTP on 8008**:
+- Edit `/data/homeserver.yaml` inside that volume to point at Postgres and **HTTP on 8008**:
 
 ```yaml
 database:
@@ -111,10 +113,23 @@ Bring it up:
 docker compose up -d
 ```
 
-Smoke test (must be **200 OK**):
+- Smoke test (must be **200 OK**):
 
 ```bash
 curl -I http://127.0.0.1:8008/_matrix/client/versions
 ```
 
-Add user with the adduser.sh script, put in your correct container name.
+- Add user with the adduser.sh script, put in your correct container name.
+
+- Code to add to homeserver.yaml in Synapse container, change the domains and secrect here and run command in turn-run.sh:
+```bash
+turn_uris:
+  - "turn:matrix.example.com:3478?transport=udp"
+  - "turn:matrix.example.com:3478?transport=tcp"
+  # uncomment if you enabled TLS on 5349:
+  # - "turns:matrix.example.com:5349?transport=tcp"
+
+turn_shared_secret: "CHANGE_ME_SHARED_SECRET"
+turn_user_lifetime: 864000        # 10 days, common default
+turn_allow_guests: false
+```
